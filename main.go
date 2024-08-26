@@ -49,14 +49,16 @@ func main() {
 		},
 	}
 
-	//carWorkers(carsList)
-	carUpdated(carsList)
+	carWorkers(carsList)
+	//carUpdated(carsList)
 }
 
 func carWorkers(carsList []*Cars) {
 	var carsListUpdated []Cars
 	ch := make(chan *Cars)
 	results := make(chan Cars, len(carsList))
+	defer close(ch)
+	defer close(results)
 	timeInit := time.Now()
 
 	for i := 0; i < 1; i++ {
@@ -67,12 +69,10 @@ func carWorkers(carsList []*Cars) {
 		ch <- car
 	}
 
-	for i := 0; i < len(carsList); i++ {
+	for range carsList {
 		carsListUpdated = append(carsListUpdated, <-results)
 	}
 
-	close(ch)
-	close(results)
 	fmt.Println(carsListUpdated)
 	timeEnd := time.Now()
 	fmt.Println("Time elapsed carWorkers: ", timeEnd.Sub(timeInit))
